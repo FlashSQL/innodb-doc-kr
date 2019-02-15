@@ -2,7 +2,7 @@
 	"logo": {
 		"text": "InnoDB Reference Manual",
 		"type": "link",
-		"path": "index.html"
+		"path": "blog/hello-world.html"
 	},
 	"main" : [
 		{
