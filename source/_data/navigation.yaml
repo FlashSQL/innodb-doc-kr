@@ -1,0 +1,26 @@
+{
+	"logo": {
+		"text": "InnoDB Reference Manual",
+		"type": "link",
+		"path": "index.html"
+	},
+	"main" : [
+		{
+			"text": "PROJECTS",
+			"type": "label"
+		},
+		{
+			"text": "my projects",
+			"type": "link",
+			"path": "blog/my-blog.html",
+			"children": [
+				{
+					"text": "my blog page 1",
+					"type": "link",
+					"path": "blog/my-page.html"
+				}
+			]
+		},
+	]
+}
+
