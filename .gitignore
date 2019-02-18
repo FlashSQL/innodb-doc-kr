@@ -2,3 +2,7 @@ _site
 .sass-cache
 .jekyll-metadata
 node_modules
+
+public/
+.deploy_git
+db.json

@@ -14,3 +14,7 @@ MySQL/InnoDB와 관련된 추가적인 문서, 연구 자료나 논문 등도 �
 `hexo`가 설치되어 있지 않은 경우 `npm i hexo-cli -g`를 통해 hexo 커맨드라인 툴을 설치합니다. 
 모든 설치 작업이 정상적으로 완료된 경우 `hexo server`를 통해 로컬 서버를 실행하고,
 웹 브라우저에서 `http://localhost:4000`을 통해 접속합니다. 
+
+### Github page로 deploy 하기
+
+작업이 완료된 이후 `hexo deploy -g` 를 통해 github로 deploy 한다.
