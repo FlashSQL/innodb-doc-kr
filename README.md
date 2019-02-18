@@ -36,3 +36,10 @@ MySQL/InnoDB와 관련된 추가적인 문서, 연구 자료나 논문 등도 �
 [use-reference]: https://flashsql.github.io/innodb-doc-kr
 [Direct reference]: https://flashsql.github.io/innodb-doc-kr
 ```
+
+## Contribution 방법
+
+번역에 대한 컨트리뷰션은 모두 `hexo` 브랜치에 대해서만 허용합니다. `master` 브랜치의 내용은
+`hexo` 브랜치에서 문서를 관리한 뒤 git pages에 맞게 컴파일된 데이터들을 저장하고 호스팅 하는 공간입니다. 
+본 저장소에 대한 이슈나 패치가 있을 경우, 반드시 `hexo` 브랜치의 데이터들을 수정하고 로컬 서버에서
+테스트를 끝낸 뒤 `hexo` 브랜치에 대해 이슈/PR을 남겨주세요. 
