@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+
+    <title>InnoDB | InnoDB </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/innodb-doc-kr/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/innodb-doc-kr/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"InnoDB","path":"blog/introduction-innodb.html"},"data":{"navigation":{"logo":{"text":"InnoDB Reference Manual","type":"link","path":"blog/introduction-innodb.html"},"main":[{"text":"Introduction","type":"link","path":"blog/introduction-innodb.html"}]}},"config":{"timezone":"KR","root":"/innodb-doc-kr/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","partials":{"footer_start":"./footer.ejs"}}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/innodb-doc-kr/blog/introduction-innodb.html" class="doc-navbar__logo"><img src="/innodb-doc-kr/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">InnoDB Reference Manual</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h2 id="Introduction-to-InnoDB-in-MySQL-8-0"><a href="#Introduction-to-InnoDB-in-MySQL-8-0" class="headerlink" title="Introduction to InnoDB in MySQL 8.0"></a>Introduction to InnoDB in MySQL 8.0</h2><p>MySQL에서 사용하는 InnoDB는 높은 가용성과 성능을 보장하기 위해 사용되는 다목적 스토리지 엔진이다.<br>MySQL 8.0에서 기본 스토리지 엔진으로 InnoDB를 사용하며, <code>CREATE TABLE</code> 구문에<br><code>ENGINE=</code> 옵션을 추가하여 다른 엔진을 사용하도록 설정할 수 있다. </p>
+<h3 id="InnoDB의-주요-장점"><a href="#InnoDB의-주요-장점" class="headerlink" title="InnoDB의 주요 장점"></a>InnoDB의 주요 장점</h3><ul>
+<li>사용자의 데이터를 보호하기 위해 <code>commit</code>, <code>rollback</code> 및 <code>crash recovery</code>가 가능한 트랜잭션을 통해 ACID 모델을 지원하는 DML 오퍼레이션을 제공한다. 자세한 내용은 <a href>“InnoDB and ACID Model</a>을 통해 확인할 수 있다.</li>
+<li><em>Row-level locking</em>과 오라클 스타일의 consistent read를 사용하여 다중 사용자 환경에서의 concurrency와 성능을 높인다. 자세한 내용은 <a href>“InnoDB Locking and Transaction Model”</a>을 통해 확인할 수 있다.</li>
+<li><code>InnoDB</code> 테이블은 디스크에 저장되며, 프라이머리 키에 최적화된 인덱스를 제공한다. 모든 <code>InnoDB</code> 테이블은 프라이머리 키 인덱스를 가지고 있으며, 이들은 모두 <code>clustered index</code>이다. 자세한 내용은 <a href>“Clustered and Secondary Indexes”</a>를 통해 확인할 수 있다.</li>
+<li>데이터의 integrity를 보장하기 위해 <code>Foreign key</code>를 지원한다. Foreign key를 사용한 insert/update/delete와 같은 작업들은 연관된 모든 테이블들에 대해서 제약사항을 위반하지 않는 지 자동 검사된다. 자세한 내용은 <a href>“InnoDB and FOREIGN KEY Constraints”</a>를 통해 확인할 수 있다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">기능</th>
+<th>지원 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">B-tree 인덱스</td>
+<td>o 지원</td>
+</tr>
+<tr>
+<td style="text-align:left">Backup/point-in-time recovery</td>
+<td>o 지원 (서버에서 지원함)</td>
+</tr>
+<tr>
+<td style="text-align:left">Cluster 데이터베이스</td>
+<td>x 미지원</td>
+</tr>
+<tr>
+<td style="text-align:left">Clustered 인덱스</td>
+<td>o 지원</td>
+</tr>
+<tr>
+<td style="text-align:left">데이터 압축</td>
+<td>o 지원</td>
+</tr>
+<tr>
+<td style="text-align:left">데이터 캐시</td>
+<td>o 지원</td>
+</tr>
+<tr>
+<td style="text-align:left">데이터 암호화</td>
+<td>o 지원 (서버에서 지원함)</td>
+</tr>
+<tr>
+<td style="text-align:left">Foreign key</td>
+<td>o 지원</td>
+</tr>
+</tbody>
+</table>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    <style>
+    #footer {
+        align-content: center;
+    position: relative; z-index:100;
+    background-color: #727778; 
+    padding: 20px 30px;
+    line-height: 1.8;
+    color: white !important;
+    width: 100%;
+    font-size: 16px;
+    }
+    #footer a.first {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+    #footer a {
+        text-decoration: none;
+        color: white;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #footer .copyright {
+        font-size: 13px;
+        margin: 0;
+    }
+    #footer .center {
+        width: fit-content;
+        margin: auto  auto;
+    }
+</style>
+<footer id="footer">
+    <div class="center">
+        <div class="center">
+<a class="first" href="https://vldb.skku.ac.kr">VLDB Lab.</a>
+ | 
+<a href="https://flashsql.skku.ac.kr">FlashSQL</a>
+ | 
+<a href="https://flashsql.github.io">FlashSQL Blog</a>
+        </div>
+<p class="copyright">
+Copyright Sungkyunkwan University VLDB Lab. All rights reserved.
+</p>
+    </div>
+</footer>
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/innodb-doc-kr/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
