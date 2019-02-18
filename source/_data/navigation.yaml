@@ -2,25 +2,32 @@
 	"logo": {
 		"text": "InnoDB Reference Manual",
 		"type": "link",
-		"path": "blog/hello-world.html"
+			"path": "blog/introduction-innodb.html",
 	},
-	"main" : [
+	"main": [
 		{
-			"text": "PROJECTS",
-			"type": "label"
-		},
-		{
-			"text": "my projects",
+			"text": "Introduction",
 			"type": "link",
-			"path": "blog/my-blog.html",
-			"children": [
-				{
-					"text": "my blog page 1",
-					"type": "link",
-					"path": "blog/my-page.html"
-				}
-			]
+			"path": "blog/introduction-innodb.html",
 		},
 	]
+	# "main" : [
+	# 	{
+	# 		"text": "PROJECTS",
+	# 		"type": "label"
+	# 	},
+	# 	{
+	# 		"text": "my projects",
+	# 		"type": "link",
+	# 		"path": "blog/my-blog.html",
+	# 		"children": [
+	# 			{
+	# 				"text": "my blog page 1",
+	# 				"type": "link",
+	# 				"path": "blog/my-page.html"
+	# 			}
+	# 		]
+	# 	},
+	# ]
 }
 

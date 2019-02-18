@@ -74,6 +74,10 @@ pagination_dir: page
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: ../node_modules/hexo-theme-doc
+theme_config:
+  favicon: images/favicon.ico
+  partials:
+    footer_start: ./footer.ejs
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
