@@ -43,10 +43,16 @@ MySQL에서 사용하는 InnoDB는 높은 가용성과 성능을 보장하기 �
 | **Transaction**                           | o 지원                                                       |
 | **Data dictionary 에 대한 통계 업데이트** | o 지원                                                       |
 
-MySQL이 지원하는 다른 스토리지 엔진과 *InnoDB*를 비교하고 싶은 경우에는 [이 링크](https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html)에서 확인하길 바란다.
+MySQL이 지원하는 다른 스토리지 엔진과 *InnoDB*를 비교하고 싶은 경우에는 [이 링크][other engines]에서 확인하길 바란다.
 
 ## InnoDB 사용자를 위한 추가 자료 및 커뮤니티
 
-- *InnoDB*와 관련된 용어나 정의들을 알고 싶은 경우 [MySQL Glossary](https://dev.mysql.com/doc/refman/8.0/en/glossary.html)를 참조
-- `InnoDB` 스토리지 엔진과 관련된 포럼/커뮤니티 사이트는 [MySQL Forumns::InnoDB](http://forums.mysql.com/list.php?22) 참조
-- InnoDB는 MySQL의 하위 프로젝트로 GNU GPL Licence Version 2를 따름. 이와 관련된 자세한 사항은 [MySQL Licensing](http://www.mysql.com/company/legal/licensing/) 참조
+- *InnoDB*와 관련된 용어나 정의들을 알고 싶은 경우 [MySQL Glossary]를 참조
+- `InnoDB` 스토리지 엔진과 관련된 포럼/커뮤니티 사이트는 [MySQL Forums::InnoDB] 참조
+- InnoDB는 MySQL의 하위 프로젝트로 GNU GPL Licence Version 2를 따름. 이와 관련된 자세한 사항은 [MySQL Licensing] 참조
+
+
+[MySQL Glossary]: https://dev.mysql.com/doc/refman/8.0/en/glossary.html
+[MySQL Forums::InnoDB]: http://forums.mysql.com/list.php?22
+[MySQL Licensing]: http://www.mysql.com/company/legal/licensing/
+[other engines]: https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html
