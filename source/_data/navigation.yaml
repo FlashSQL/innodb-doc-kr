@@ -2,13 +2,28 @@
 	"logo": {
 		"text": "InnoDB Reference Manual",
 		"type": "link",
-			"path": "blog/introduction-innodb.html",
+			"path": "index.html",
 	},
 	"main": [
 		{
+			"text": "InnoDB Storage Engine",
+			"type": "label"
+		},
+		{
 			"text": "Introduction",
-			"type": "link",
-			"path": "blog/introduction-innodb.html",
+			"type": "label",
+			"children": [
+				{
+					"text": "InnoDB in MySQL 8.0",
+					"type": "link",
+					"path": "blog/innodb/introduction-innodb.html",
+				},
+				{
+					"text": "InnoDB 테이블의 장점",
+					"type": "link",
+					"path": "blog/innodb/benefits-of-using-innodb-tables.html"
+				}
+			]
 		},
 	]
 	# "main" : [
