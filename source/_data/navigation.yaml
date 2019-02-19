@@ -16,12 +16,22 @@
 				{
 					"text": "InnoDB in MySQL 8.0",
 					"type": "link",
-					"path": "blog/innodb/introduction-innodb.html",
+					"path": "blog/innodb/15.1 introduction-innodb.html",
 				},
 				{
 					"text": "InnoDB 테이블의 장점",
 					"type": "link",
-					"path": "blog/innodb/benefits-of-using-innodb-tables.html"
+					"path": "blog/innodb/15.1.1 benefits-of-using-innodb-tables.html"
+				},
+				{
+					"text": "Best Practices",
+					"type": "link",
+					"path": "blog/innodb/15.1.2 best-practices.html"
+				},
+				{
+					"text": "기타 가이드",
+					"type": "link",
+					"path": "blog/innodb/15.1.3 deal-with-innodb.html"
 				}
 			]
 		},
