@@ -17,14 +17,14 @@ MySQL/InnoDB와 관련된 추가적인 문서, 연구 자료나 논문 등도 �
 
 ### Github page로 deploy 하기
 
-작업이 완료된 이후 `hexo deploy -g` 를 통해 github로 deploy 한다.
+작업이 완료된 이후 `hexo deploy -g` 를 통해 github로 deploy 합니다.
 
 ## 문서 작성 요령
 
-번역된 문서는 `source/blog` 안에 위치한다. 각각의 대주제에 맞도록 폴더를 구성하며, 현재까지는 InnoDB에 대한
-번역만을 제공하므로 `source/blog/innodb` 폴더만 존재한다. 각 포스트의 이름은 주제가 뭔지 알 수 있도록
-명확하게 명시한다. 마크다운을 이요하여 글을 작성할 때, 링크나 이미지의 주소는 본문에 바로 적지 않고,
-아래의 예제처럼 참조연산을 사용한다.
+번역된 문서는 `source/blog` 안에 위치합니다. 각각의 대주제에 맞도록 폴더를 구성하며, 현재까지는 InnoDB에 대한
+번역만을 제공하므로 `source/blog/innodb` 폴더만 존재합니다. 각 포스트의 이름은 주제가 뭔지 알 수 있도록
+명확하게 명시합니다. 마크다운을 이용하여 글을 작성할 때, 링크나 이미지의 주소는 본문에 바로 적지 않고,
+아래의 예제처럼 참조연산을 사용합니다.
 
 ```markdown
 [이 링크의 주소를 본문에 바로 삽입하지 말고 참조를 사용하세요][use-reference]
@@ -32,7 +32,7 @@ MySQL/InnoDB와 관련된 추가적인 문서, 연구 자료나 논문 등도 �
 ... 글의 다른 내용들....
 
 
-.... 포스팅 마크다운 파일의 최 하단부 ....
+.... 포스팅 마크다운 파일의 최하단부 ....
 [use-reference]: https://flashsql.github.io/innodb-doc-kr
 [Direct reference]: https://flashsql.github.io/innodb-doc-kr
 ```
