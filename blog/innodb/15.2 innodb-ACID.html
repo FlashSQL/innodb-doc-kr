@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+
+    <title>InnoDB | ACID Property </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/innodb-doc-kr/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/innodb-doc-kr/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"ACID Property","path":"blog/innodb/15.2 innodb-ACID.html"},"data":{"navigation":{"logo":{"text":"InnoDB Reference Manual","type":"link","path":"index.html"},"main":[{"text":"InnoDB Storage Engine","type":"label"},{"text":"Introduction","type":"label","children":[{"text":"InnoDB in MySQL 8.0","type":"link","path":"blog/innodb/15.1 introduction-innodb.html"},{"text":"InnoDB 테이블의 장점","type":"link","path":"blog/innodb/15.1.1 benefits-of-using-innodb-tables.html"},{"text":"Best Practices","type":"link","path":"blog/innodb/15.1.2 best-practices.html"},{"text":"기타 가이드","type":"link","path":"blog/innodb/15.1.3 deal-with-innodb.html"}]},{"text":"InnoDB and ACID","type":"link\"","path":"blog/innodb/15.2 innodb-ACID.html"}]}},"config":{"timezone":"KR","root":"/innodb-doc-kr/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","partials":{"footer_start":"./footer.ejs"}}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/innodb-doc-kr/index.html" class="doc-navbar__logo"><img src="/innodb-doc-kr/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">InnoDB Reference Manual</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="InnoDB의-ACID-모델"><a href="#InnoDB의-ACID-모델" class="headerlink" title="InnoDB의 ACID 모델"></a>InnoDB의 ACID 모델</h1><p><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_acid" target="_blank" rel="noopener">ACID</a> 모델은 비즈니스 데이터나 사업의 핵심 응용 프로그램을 관리하는데 있어서 중요한 데이터베이스의 안정성을 강조하고 보장하는 일련의 데이터베이스 설계 원칙이다. MySQL은 <code>InnoDB</code> 엔진과 같이 ACID 모델을 철저하게 준수하는 컴포넌트들을 사용하서, 소프트웨어 크래쉬나 하드웨어 오작동으로 인한 예외 상황에서 데이터가 손상되거나 작업 결과가 왜곡되지 않도록 방지한다. 이러한 ACID 모델은 철저히 준수하는 기능을 사용할 경우, 사용하고자 하는 응용프로그램을 위해 새로운 일관성 검사 기능 및 장애 복구 기술을 개발할 필요가 없다. 소프트웨어적인 안전장치, 극도로 신뢰할 수 있는 하드웨어 장치가 있거나 타겟 애플리케이션이 어느정도의 데이터 유실을 감수할수 있는 경우에는, MySQL의 옵션을 통해 ACID 모델 중 일부를 희생하고 응용프로그램의 성능이나 데이터 처리량을 늘릴 수도 있다.</p>
+<p>이후의 내용은 <em>InnoDB</em> 엔진이 ACID모델을 어떻게 다루고 있는지에 대해서 설명한다.</p>
+<ul>
+<li><strong><em>A</em></strong> : atomicity (원자성)</li>
+<li><strong><em>C</em></strong> : Consistency (일관성)</li>
+<li><strong><em>i</em></strong> : isolation (고립성, 독립성)</li>
+<li><strong><em>D</em></strong> : durability (지속성)</li>
+</ul>
+<h2 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h2><p>ACID 모델의 <strong><em>atomicity</em></strong> 는 주로 <em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_transaction" target="_blank" rel="noopener">transaction</a>의 구현을 포함한다. MySQL의 관련 기능들은 아래와 같다.</p>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_autocommit" target="_blank" rel="noopener">Autocommit</a> 옵션</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html" target="_blank" rel="noopener">COMMIT</a> 구문</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/commit.html" target="_blank" rel="noopener">ROLLBACK</a> 구문</li>
+<li><code>INFORMATION_SCHEMA</code> 테이블의 데이터베이스 운영 관련 데이터</li>
+</ul>
+<h2 id="Consistency"><a href="#Consistency" class="headerlink" title="Consistency"></a>Consistency</h2><p>ACID모델의 <strong><em>consistency</em></strong>는 주로 데이터가 손상되는것을 방지하기 위해 <em>InnoDB</em>의 내부의 동작방식을 포함한다. MySQL의 관련 기능들은 아래와 같다.</p>
+<ul>
+<li><em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_doublewrite_buffer" target="_blank" rel="noopener">doublewrite buffer</a></li>
+<li><em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_crash_recovery" target="_blank" rel="noopener">crash recovery</a></li>
+</ul>
+<h2 id="Isolation"><a href="#Isolation" class="headerlink" title="Isolation"></a>Isolation</h2><p>ACID모델의 <strong><em>isolation</em></strong>은 주로 <em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_transaction" target="_blank" rel="noopener">transaction</a>의 구현을 포함하며, 특히 각 트랜잭션에 적용 되는 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_isolation_level" target="_blank" rel="noopener">isolation level</a>에 의해 정의된다. MySQL의 관련 기능들은 아래와 같다.</p>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_autocommit" target="_blank" rel="noopener">Autocommit</a> 옵션</li>
+<li><code>SET ISOLATION LEVEL</code> 구문</li>
+<li><em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_locking" target="_blank" rel="noopener">locking</a> 상세 구현. 성능 테스트 중에 <code>INFORMATION_SCHEMA</code> 테이블을 통해 확인 가능함.</li>
+</ul>
+<h2 id="Durability"><a href="#Durability" class="headerlink" title="Durability"></a>Durability</h2><p>ACID모델의 <strong><em>durability</em></strong>는 사용중인 하드웨어와 상호작용하는 MySQL의 소프트웨어 기능을 포함한다. 하드웨어는 사용하는 서버의 CPU, 네트워크, 저장장치의 기능과 구성에 따라서 많은 경우의 수가 존재하므로, 구체적인 가이드라인을 제시하기에 가장 복잡한 기능이다. MySQL의 관련 기능들은 아래와 같다.</p>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_doublewrite" target="_blank" rel="noopener">innodb_doublewrite</a> 설정 옵션에 따라 조절되는 <em>InnoDB</em>의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_doublewrite_buffer" target="_blank" rel="noopener">doublewrite buffer</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_flush_log_at_trx_commit" target="_blank" rel="noopener">innodb_flush_log_at_trx_commit</a> 옵션</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_sync_binlog" target="_blank" rel="noopener">sync_binlog</a> 옵션</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_file_per_table" target="_blank" rel="noopener">innodb_file_per_table</a> 옵션</li>
+<li>HDD, SSD 및 RAID의 저장장치 내부 쓰기 버퍼 (write buffer)</li>
+<li>저장장치내의 배터리 지원 캐시 (정전으로 인한 데이터 유실 방지)</li>
+<li><code>fsync()</code> 시스템 콜을 지원하는 운영체제</li>
+<li>UPS (Uninterruptible power supply, 무정전 전원 공급 장치)에 의해 보호되는 MySQL 서버 컴퓨터 및 데이터베이스 저장장치</li>
+<li>데이터에 대한 다양한 백업 전략 (빈도, 유형, 보존 기간 등)</li>
+<li>분산형 혹은 호스팅형 응용프로그램의 경우, MySQL서버를 구동하는 하드웨어가 잇는 데이터센터의 특정한 특성과 데이터 센터 간의 네트워크 연결 상태</li>
+</ul>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    <style>
+    #footer {
+        align-content: center;
+    position: relative; z-index:100;
+    background-color: #727778; 
+    padding: 20px 30px;
+    line-height: 1.8;
+    color: white !important;
+    width: 100%;
+    font-size: 16px;
+    }
+    #footer a.first {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+    #footer a {
+        text-decoration: none;
+        color: white;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #footer .copyright {
+        font-size: 13px;
+        margin: 0;
+    }
+    #footer .center {
+        width: fit-content;
+        margin: auto  auto;
+    }
+</style>
+<footer id="footer">
+    <div class="center">
+        <div class="center">
+<a class="first" href="https://vldb.skku.ac.kr">VLDB Lab.</a>
+ | 
+<a href="https://flashsql.skku.ac.kr">FlashSQL</a>
+ | 
+<a href="https://flashsql.github.io">FlashSQL Blog</a>
+        </div>
+<p class="copyright">
+Copyright Sungkyunkwan University VLDB Lab. All rights reserved.
+</p>
+    </div>
+</footer>
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/innodb-doc-kr/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
