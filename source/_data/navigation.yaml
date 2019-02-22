@@ -11,13 +11,14 @@
 		},
 		{
 			"text": "Introduction",
-			"type": "label",
+			"type": "link",
+			"path": "blog/innodb/15.1 introduction-innodb.html",
 			"children": [
-				{
-					"text": "InnoDB in MySQL 8.0",
-					"type": "link",
-					"path": "blog/innodb/15.1 introduction-innodb.html",
-				},
+				# {
+				# 	"text": "InnoDB in MySQL 8.0",
+				# 	"type": "link",
+				# 	"path": "blog/innodb/15.1 introduction-innodb.html",
+				# },
 				{
 					"text": "InnoDB 테이블의 장점",
 					"type": "link",
@@ -37,9 +38,15 @@
 		},
 		{
 			"text": "InnoDB and ACID",
-			"type": link",
+			"type": "link",
 			"path": "blog/innodb/15.2 innodb-ACID.html"
+		},
+		{
+			"text": "Multi Versioning",
+			"type": "link",
+			"path": "blog/innodb/15.3 innodb-multi-versioning.html"
 		}
+
 	]
 	# "main" : [
 	# 	{
