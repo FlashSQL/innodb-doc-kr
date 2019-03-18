@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+
+    <title>InnoDB | Buffer Pool </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/innodb-doc-kr/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/innodb-doc-kr/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"Buffer Pool","path":"blog/innodb/5.1.buffer-pool.html"},"data":{"navigation":{"logo":{"text":"InnoDB Reference Manual","type":"link","path":"index.html"},"main":[{"text":"InnoDB Storage Engine","type":"label"},{"text":"Introduction","type":"link","path":"blog/innodb/15.1 introduction-innodb.html","children":[{"text":"InnoDB 테이블의 장점","type":"link","path":"blog/innodb/1.1 benefits-of-using-innodb-tables.html"},{"text":"Best Practices","type":"link","path":"blog/innodb/1.2 best-practices.html"},{"text":"기타 가이드","type":"link","path":"blog/innodb/1.3 deal-with-innodb.html"}]},{"text":"InnoDB and ACID","type":"link","path":"blog/innodb/2 innodb-ACID.html"},{"text":"Multi Versioning","type":"link","path":"blog/innodb/3 innodb-multi-versioning.html"},{"text":"InnoDB Architecture","type":"link","path":"blog/innodb/4 InnoDB Architecture.html"},{"text":"In-Memory Structure","type":"link","path":"blog/innodb/5 innodb in-memory structures.html","children":[{"text":"Buffer Pool","type":"link","path":"blog/innodb/5.1.buffer-pool.html"},{"text":"Change Buffer","type":"link","path":"blog/innodb/5.2.change-buffer.html"},{"text":"Adaptive Hash Index","type":"link","path":"blog/innodb/5.3.adaptive-hash-index.html"},{"text":"Log Buffer","type":"link","path":"blog/innodb/5.4.log-buffer.html"}]}]}},"config":{"timezone":"KR","root":"/innodb-doc-kr/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":true,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","partials":{"footer_start":"./footer.ejs"}}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/innodb-doc-kr/index.html" class="doc-navbar__logo"><img src="/innodb-doc-kr/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">InnoDB Reference Manual</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h1><p>버퍼 풀 (buffer pool)은 메인 메모리 내에서 데이터과 인덱스 데이터가 접근될 때 해당 데이터를 캐시하는 영역이다. 버퍼 풀을 통해서 자주 접근되는 데이터를 메모리에서 바로 획득할 수 있으며 전체 작업의 수행 속도를 증가 시킬 수 있다. MySQL을 위한 서버에서는 물리 메모리의 최대 80%까지를 <em>InnoDB</em>의 버퍼 풀로 할당하여 사용하는 경우가 많다.</p>
+<p>대량의 읽기 요청을 효율적으로 처리하기 위해, 버퍼 풀은 데이터를 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_page" target="_blank" rel="noopener">page</a> 단위로 나누어 관리하며, 한 페이지에는 여러 로우 (row)가 속할 수 있다. 버퍼 풀 캐시의 효율적인 관리를 위해서, 버퍼풀 내의 페이지는 링크드 리스트 (linked list) 로 관리한다. 일종의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_lru" target="_blank" rel="noopener">LRU</a> 알고리즘에 따라 잘 접근되지 않는 데이터 페이지는 캐시에서 제거하는 방식으로 버퍼풀을 관리한다.</p>
+<p>실제 사용하고자 하는 애플리케이션에서 자주 사용되는 데이터를 버퍼풀에 어떤 방식으로 캐싱할지 알아 두는 것은 MySQL 튜닝의 중요한 부분이다. </p>
+<h2 id="Buffer-Pool-LRU-Algorithm"><a href="#Buffer-Pool-LRU-Algorithm" class="headerlink" title="Buffer Pool LRU Algorithm"></a>Buffer Pool LRU Algorithm</h2><p>위에서 언급했듯이 <em>InnoDB</em>의 버퍼풀은 링크드 리스트를 이용하여 least recentrly used (LRU) 알고리즘을 통해 관리한다. 새로운 페이지를 버퍼풀에 추가하기 위한 페이지 공간이 필요한 경우, 접근이 가장 오래된 페이지를 선정하여 버퍼풀에서 제거하고, 새로운 페이지를 리스트의 중간지점에 삽입하는데 이를 midpoint insertion이라고 한다. 중간지점 삽입 전략을 통해 버퍼풀 전체 리스트를 아래에서 설명할 두가지 리스트로 나누어 관리한다. </p>
+<ul>
+<li>전체 리스트의 head는, 최근에 접근된 (young) 페이지들의 리스트를 가리킨다. </li>
+<li>전체 리스트의 tail은, 접근 시기가 가장 오래된 (old) 페이지를 가리킨다.</li>
+</ul>
+<p><strong>Figure 1. Buffer Pool List</strong></p>
+<p><img src="../../images/innodb-buffer-pool-list.png" alt="innodb buffer pool list"></p>
+<p>이러한 알고리즘을 통해 사용자 쿼리에서 가장 자주 접근 되는 데이터 페이지들을 <em>new sublist</em>에 보관한다. <em>old sublist</em>에는 잘 접근 되지 않은 데이터를 저장하며, 이후에 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_eviction" target="_blank" rel="noopener">eviction</a> 대상으로 선정된다. </p>
+<p>기본적으로 알고리즘 전체 순서는 아래와 같다. </p>
+<ul>
+<li>버퍼 풀의 3/8 은 <em>old sublist</em>로 사용된다. </li>
+<li>버퍼 풀 전체의 <em>midpoint</em>는 <em>new sublist</em>의 tail과 <em>old sublist</em>의 head가 만나는 지점이다.</li>
+<li><em>InnoDB</em>가 새로운 데이터 페이지를 버퍼 풀로 읽어오는 경우에는, midpoint (<em>old sublist</em>의 head)에 삽입한다. 여기서 읽어오는 데이터에는 실제 사용자 쿼리에 의해 요청된 데이터도 있을 수 있지만, <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_read_ahead" target="_blank" rel="noopener">read-ahead</a>에 의해 자동적으로 읽어오는 데이터도 포함된다.</li>
+<li><em>old sublist</em>에 존재하는 페이지를 접근할 경우 해당 페이지는 “young”이라고 판단 되며, 버퍼풀 전체의 head (<em>new sublist</em>의 head)로 이동된다. 사용자 쿼리나 중간 작업에 의해 실제로 필요해서 접근된 페이지의 겨웅 곧바로 young으로 변경되지만, read-ahead 작업에 의해 접근된 페이지의 경우에는 young으로 취급하지 않는다. </li>
+<li>데이터베이스의 작업이 계속 진행됨에 따라서, 버퍼풀에 상주하는 데이터 페이지들 중 자주 접근 되지 않는 페이지는 자연스럽게 리스트이 tail로 이동하게 된다. 이는 직접적으로 데이터를 tail로 옮기는 것이 아닌, young 이 되는 페이지가 앞으로 이동하면서 발생한다. 추가로 <em>old sublist</em>의 페이지들은 새로운 페이지가 midpoint에 삽입 되면서 tail에 가까워지게 된다. 페이지 eviction시점까지 접근되지 않고 tail에 남아있는 페이지는 결국 버퍼 풀에서 삭제되게 된다.</li>
+</ul>
+<p>기본적으로 read 쿼리에 의해 직접 접근되는 페이지들은 곧바로 <em>new sublist</em>로 이동하여 더 오랜기간 버퍼 풀에 상주할 수 있게 된다. table scan 쿼리 (<a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html" target="_blank" rel="noopener">mysqldump</a>, 나 <code>WHERE</code>가 없는 <code>SELECT</code> 쿼리) 에 대량의 데이터가 한번에 버퍼 풀에 삽입되는 경우, midpoint 삽입에 의해 <em>old sublist</em>의 대량 데이터들이 모두 버퍼풀에서 삭제되게 된다. 이와 유사하게, read-ahead 작업에 의해 midpoint에 삽입 되었던 데이터가, 단 1번만 접근되더라도 <em>new sublist</em>의 head로 이동하게 되어, 실제 자주 접근되는 데이터가 old tail에 가까워지는 일이 발생할 수도 있다. 이러한 현상을 최적화 하기 위해서는 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html" target="_blank" rel="noopener">Making the Buffer Pool Scan Resistant</a>와 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html" target="_blank" rel="noopener">Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)</a>를 읽어보길 바란다. </p>
+<p><em>InnoDB</em>의 기본 모니터링 아웃풋의 <code>BUFFER POOL AND MEMORY</code> 섹션에 LRU 알고리즘에 관한 정보가 있으므로, 자세히 보고싶은 경우 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool.html#innodb-buffer-pool-monitoring" target="_blank" rel="noopener">Monitoring the Buffer Pool Using the InnoDB Standard Monitor</a>를 찹조하길 바란다. </p>
+<h2 id="Buffer-Pool-Configuration"><a href="#Buffer-Pool-Configuration" class="headerlink" title="Buffer Pool Configuration"></a>Buffer Pool Configuration</h2>
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    <style>
+    #footer {
+        align-content: center;
+    position: relative; z-index:100;
+    background-color: #727778; 
+    padding: 20px 30px;
+    line-height: 1.8;
+    color: white !important;
+    width: 100%;
+    font-size: 16px;
+    }
+    #footer a.first {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+    #footer a {
+        text-decoration: none;
+        color: white;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #footer .copyright {
+        font-size: 13px;
+        margin: 0;
+    }
+    #footer .center {
+        width: fit-content;
+        margin: auto  auto;
+    }
+</style>
+<footer id="footer">
+    <div class="center">
+        <div class="center">
+<a class="first" href="https://vldb.skku.ac.kr">VLDB Lab.</a>
+ | 
+<a href="https://flashsql.skku.ac.kr">FlashSQL</a>
+ | 
+<a href="https://flashsql.github.io">FlashSQL Blog</a>
+        </div>
+<p class="copyright">
+Copyright Sungkyunkwan University VLDB Lab. All rights reserved.
+</p>
+    </div>
+</footer>
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/innodb-doc-kr/script/doc.js"></script>
+
+    
+
+  </body>
+</html>

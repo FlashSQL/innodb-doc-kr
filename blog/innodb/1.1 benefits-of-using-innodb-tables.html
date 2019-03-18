@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+
+    <title>InnoDB | Benefits of InnoDB Tables </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/innodb-doc-kr/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/innodb-doc-kr/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"Benefits of InnoDB Tables","path":"blog/innodb/1.1 benefits-of-using-innodb-tables.html"},"data":{"navigation":{"logo":{"text":"InnoDB Reference Manual","type":"link","path":"index.html"},"main":[{"text":"InnoDB Storage Engine","type":"label"},{"text":"Introduction","type":"link","path":"blog/innodb/15.1 introduction-innodb.html","children":[{"text":"InnoDB 테이블의 장점","type":"link","path":"blog/innodb/1.1 benefits-of-using-innodb-tables.html"},{"text":"Best Practices","type":"link","path":"blog/innodb/1.2 best-practices.html"},{"text":"기타 가이드","type":"link","path":"blog/innodb/1.3 deal-with-innodb.html"}]},{"text":"InnoDB and ACID","type":"link","path":"blog/innodb/2 innodb-ACID.html"},{"text":"Multi Versioning","type":"link","path":"blog/innodb/3 innodb-multi-versioning.html"},{"text":"InnoDB Architecture","type":"link","path":"blog/innodb/4 InnoDB Architecture.html"},{"text":"In-Memory Structure","type":"link","path":"blog/innodb/5 innodb in-memory structures.html","children":[{"text":"Buffer Pool","type":"link","path":"blog/innodb/5.1.buffer-pool.html"},{"text":"Change Buffer","type":"link","path":"blog/innodb/5.2.change-buffer.html"},{"text":"Adaptive Hash Index","type":"link","path":"blog/innodb/5.3.adaptive-hash-index.html"},{"text":"Log Buffer","type":"link","path":"blog/innodb/5.4.log-buffer.html"}]}]}},"config":{"timezone":"KR","root":"/innodb-doc-kr/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":true,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","partials":{"footer_start":"./footer.ejs"}}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/innodb-doc-kr/index.html" class="doc-navbar__logo"><img src="/innodb-doc-kr/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">InnoDB Reference Manual</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="InnoDB-테이블의-장점"><a href="#InnoDB-테이블의-장점" class="headerlink" title="InnoDB 테이블의 장점"></a>InnoDB 테이블의 장점</h1><p>아래의 여러가지 이유로 인해서 <em>InnoDB</em> 테이블을 사용하길 권장한다. </p>
+<ul>
+<li>데이터베이스를 사용하는 도중에 소프트웨어/하드웨어적인 어떠한 이유로 인해 서버가 강제 종료 될 경우, 데이터베이스를 다시 사용하기위해 특별한 조치를 취할 필요가 없다. <em>InnoDB</em>의 자체적인 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_crash_recovery" target="_blank" rel="noopener">crash recovery</a> (장애 복구) 기술은, 종료 이전의 어떠한 커밋 트랜잭션에 대해서든지 모두 정상 완료됨을 보장한다. 종료 전에 커밋되지 않은 데이터들은 자연스럽게 원래 상태로 되돌린다.</li>
+<li><em>InnoDB</em>는 자체적인 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_buffer_pool" target="_blank" rel="noopener">buffer pool</a>을 관리하며, 테이블이나 인덱스에 접근할 때 해당 데이터들을 메모리 내에 상주할 수 있도록 한다. 자주 사용되는 데이터의 경우 메모리에서 곧바로 획득할 수 있으며, 단순 데이터가 아닌 다양한 종류의 데이터및 정보들에 대해서도 캐싱을 적용하여 전체 서버의 성능을 높인다. MySQL을 가용하는 데이터베이스 서버의 경우, 실제 물리 메모리의 최대 80% 까지를 InnoDB의 buffer pool 설정하고 사용하는 것이 일반적이다.</li>
+<li>관련있는 데이터의 집합을 서로다른 여러개의 테이블로 분리할 경우, <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_foreign_key" target="_blank" rel="noopener">foreign key</a>를 사용하여 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_referential_integrity" target="_blank" rel="noopener">referential integrity (참조 무결성)</a>을 강제할 수 있다. 데이터를 업데이트하거나 삭제할 경우 연관되어 있는 다른 테이블의 데이터도 적절히 업데이트/삭제한다. Secondary 테이블에 데이터를 삽입 하는 경우, primary table에 해당 데이터가 참조하는 키가 존재하지 않을 경우 자동적으로 삽입이 취소된다.</li>
+<li>데이터가 어떠한 이유로 인해 메모리나 디스크 내에서 내용적인 변화 (오류)가 발생할 경우, <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_checksum" target="_blank" rel="noopener">checksum</a>을 통해 데이터에 변조 위험이 있음을 사용자에게 알린다.</li>
+<li>사용자가 적절한 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_primary_key" target="_blank" rel="noopener">primary key</a>를 사용하여 테이블을 구성한 경우, 해당 컬럼을 참조하는 작업들의 성능이 크게 향상된다. <a href="https://dev.mysql.com/doc/refman/8.0/en/select.html" target="_blank" rel="noopener"><em>WHERE</em></a> 절, <a href="https://dev.mysql.com/doc/refman/8.0/en/select.html" target="_blank" rel="noopener"><em>ORDER BY</em></a>, <a href="https://dev.mysql.com/doc/refman/8.0/en/select.html" target="_blank" rel="noopener"><em>GROUP BY</em></a> 절 및 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_join" target="_blank" rel="noopener">join</a> 구문에서 Primary key로 지정된 컬럼을 참조하는 경우 처리속도가 매우 빠르다.</li>
+<li>Insert, update, delete는 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_change_buffering" target="_blank" rel="noopener">change buffering</a> 기술로 자동 최적화가 된다. <em>InnoDB</em>는 같은 테이블에 대해 동시 읽기/쓰기를 지원할 뿐만 아니라, 변경된 데이터를 캐싱하여 디스크 I/O를 최소화시킨다.</li>
+<li>캐싱으로 인한 성능상의 이점은 long running 쿼리가 수행되는 대형 테이블에 대해서만 국한되지 않는다. 한 테이블의 같은 행(row)들이 반복적으로 접근 될 경우, <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_adaptive_hash_index" target="_blank" rel="noopener">Adaptive Hash Index</a> 기법을 적용하여 반복된 lookup 작업을 해시테이블에서 곧바로 데이터를 가져와, 데이터 탐색작업을 더욱 빠르게 수행한다.</li>
+<li>테이블과 인덱스들을 압축할 수 있다.</li>
+<li>인덱스의 생성과 삭제 작업이 성능과 가용성에 미치는 영향을 최소화한다.</li>
+<li><em>InnoDB</em>가 직접 스페이스를 관리하는 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_system_tablespace" target="_blank" rel="noopener">system tablespace</a>와 달리, <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_file_per_table" target="_blank" rel="noopener">file-per-table</a>을 삭제하는 작업은 매우 빠르며, 운영체제의 다른 용도로 사용할 수 있도록 디스크 스페이스의 공간을 비워줄 수 있다.</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_dynamic_row_format" target="_blank" rel="noopener">DYNAMIC</a> row 포맷을 사용할 경우, <a href="https://dev.mysql.com/doc/refman/8.0/en/blob.html" target="_blank" rel="noopener"><em>BLOB</em></a> 데이터와 긴 문자열 필드에 대한 테이블의 스토리지 레이아웃을 더욱 최적화 할 수 있다.</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_information_schema" target="_blank" rel="noopener">INFORMATION_SCHEMA</a> 쿼리를 사용하여 스토리지 엔진의 내부 동작 상황을 모니터링 할 수 있다.</li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_performance_schema" target="_blank" rel="noopener">Performance Schema</a> 쿼리를 사용하여 스토리지 엔진 성능에 관련된 상세 사항을 모니터링 할 수 있다.</li>
+<li>MySQL의 다른 스토리지 엔진과 <em>InnoDB</em> 엔진을 섞어서 사용할 수 있으며, 하나의 쿼리 문에 서로다른 엔진을 사용하는 테이블을 섞어 쓸 수도 있다. 예를 들어 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_join" target="_blank" rel="noopener">join</a> 작업을 사용할 때, <em>InnoDB</em> 엔진을 사용하는 테이블과 [<em>MEMORY</em>] 엔진을 사용하는 테이블을 동시에 사용할 수 있다.</li>
+<li><em>InnoDB</em>는 대용량의 데이터를 사용할 때 최고의 성능을 제공하고, CPU를 효율적으로 사용하도록 설계되었다.</li>
+<li><em>InnoDB</em>는 파일 사이즈의 최댓값이 2GB로 제한된 환경의 운영체제에서도 그보다 훨씬 큰 대용량의 데이터를 처리할 수 있다.</li>
+</ul>
+<p><em>InnoDB</em>와 관련된 튜닝 기술은 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb.html" target="_blank" rel="noopener">Optimizing for InnoDB Tables</a>를 참조하기 바란다.</p>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    <style>
+    #footer {
+        align-content: center;
+    position: relative; z-index:100;
+    background-color: #727778; 
+    padding: 20px 30px;
+    line-height: 1.8;
+    color: white !important;
+    width: 100%;
+    font-size: 16px;
+    }
+    #footer a.first {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+    #footer a {
+        text-decoration: none;
+        color: white;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #footer .copyright {
+        font-size: 13px;
+        margin: 0;
+    }
+    #footer .center {
+        width: fit-content;
+        margin: auto  auto;
+    }
+</style>
+<footer id="footer">
+    <div class="center">
+        <div class="center">
+<a class="first" href="https://vldb.skku.ac.kr">VLDB Lab.</a>
+ | 
+<a href="https://flashsql.skku.ac.kr">FlashSQL</a>
+ | 
+<a href="https://flashsql.github.io">FlashSQL Blog</a>
+        </div>
+<p class="copyright">
+Copyright Sungkyunkwan University VLDB Lab. All rights reserved.
+</p>
+    </div>
+</footer>
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/innodb-doc-kr/script/doc.js"></script>
+
+    
+
+  </body>
+</html>

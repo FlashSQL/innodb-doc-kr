@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+
+    <title>InnoDB | Best Practices </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/innodb-doc-kr/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/innodb-doc-kr/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"Best Practices","path":"blog/innodb/1.2 best-practices.html"},"data":{"navigation":{"logo":{"text":"InnoDB Reference Manual","type":"link","path":"index.html"},"main":[{"text":"InnoDB Storage Engine","type":"label"},{"text":"Introduction","type":"link","path":"blog/innodb/15.1 introduction-innodb.html","children":[{"text":"InnoDB 테이블의 장점","type":"link","path":"blog/innodb/1.1 benefits-of-using-innodb-tables.html"},{"text":"Best Practices","type":"link","path":"blog/innodb/1.2 best-practices.html"},{"text":"기타 가이드","type":"link","path":"blog/innodb/1.3 deal-with-innodb.html"}]},{"text":"InnoDB and ACID","type":"link","path":"blog/innodb/2 innodb-ACID.html"},{"text":"Multi Versioning","type":"link","path":"blog/innodb/3 innodb-multi-versioning.html"},{"text":"InnoDB Architecture","type":"link","path":"blog/innodb/4 InnoDB Architecture.html"},{"text":"In-Memory Structure","type":"link","path":"blog/innodb/5 innodb in-memory structures.html","children":[{"text":"Buffer Pool","type":"link","path":"blog/innodb/5.1.buffer-pool.html"},{"text":"Change Buffer","type":"link","path":"blog/innodb/5.2.change-buffer.html"},{"text":"Adaptive Hash Index","type":"link","path":"blog/innodb/5.3.adaptive-hash-index.html"},{"text":"Log Buffer","type":"link","path":"blog/innodb/5.4.log-buffer.html"}]}]}},"config":{"timezone":"KR","root":"/innodb-doc-kr/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":true,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico","partials":{"footer_start":"./footer.ejs"}}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/innodb-doc-kr/index.html" class="doc-navbar__logo"><img src="/innodb-doc-kr/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">InnoDB Reference Manual</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="Best-Practices-for-InnoDB-Tables"><a href="#Best-Practices-for-InnoDB-Tables" class="headerlink" title="Best Practices for InnoDB Tables"></a>Best Practices for InnoDB Tables</h1><p>이 챕터에서는 <em>InnoDB</em> 테이블을 사용하는 가장 효율적인 방법을 소개한다.</p>
+<ul>
+<li><p>테이블을 생성할 때 해당 테이블에서 가장 많이 이용되는 컬럼에 대하여 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_primary_key" target="_blank" rel="noopener">primary key</a>를 지정한다. 해당하는 컬럼이 없을 경우 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_auto_increment" target="_blank" rel="noopener">auto-increment</a> 기능을 사용하여 인덱스를 생성한다. </p>
+</li>
+<li><p>같은 ID 값을 가진 데이터를 여러 테이블에서 가져오고 싶을 때에는 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_join" target="_blank" rel="noopener">join</a>을 사용하도록 한다. 조인 쿼리의 성능을 높이기 위해서는 조인 대상이 되는 컬럼을 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_foreign_key" target="_blank" rel="noopener">foreign key</a>로 지정하고, 해당 컬럼을 모든 테이블에 대해서 같은 데이터 타입을 갖도록 한다. Foreign key를 추가할 경우 해당 컬럼에 대해 인덱스를 생성하므로 접근 속도가 월등히 빨라지게 된다. 또한, foreign key가 존재하는 경우 delete/update 도 자동적으로 연관되 모든 테이블에 대해 적용하게 되고, insert를 할 때에는 제약조건 위반 여부를 자동 검사하므로 유용하게 쓰일 수 있다.</p>
+</li>
+<li><p><a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_autocommit" target="_blank" rel="noopener">Autocommit</a>을 끄고 사용해야 한다. 사용하는 저장장치의 쓰기 성능에 따라서 초당 수백번의 커밋은 성능에 안좋은 영향을 미칠 수 있고, 성능상에 한계점을 드러내게 한다.</p>
+</li>
+<li><p><code>START TRANSATION</code>과 <code>COMMIT</code> SQL 구문을 활용하여 연관된 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_dml" target="_blank" rel="noopener">DML</a> 쿼리들을 하나의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_transaction" target="_blank" rel="noopener">transaction</a>으로 묶어서 사용해야 한다. 커밋을 너무 자주 발생시키지 않고 싶을 때 사용해도 좋으며, 정말 긴 시간동안 데이터의 변경을 수행하는 Long running <a href="https://dev.mysql.com/doc/refman/8.0/en/sql-syntax-data-manipulation.html" target="_blank" rel="noopener"><em>Insert</em>, <em>Update</em>, <em>Delete</em></a> 구문에 대해서 사용해도 좋다.</p>
+</li>
+<li><p><a href="https://dev.mysql.com/doc/refman/8.0/en/lock-tables.html" target="_blank" rel="noopener">LOCK TABLES</a> 쿼리는 최대한 사용하지 말아야 한다. <em>InnoDB</em>는 가용성이나 성능상에 이슈 없이, 자체적으로 여러 세션에서 한 테이블로 요청하는 읽기/쓰기를 모두 알아서 처리 할 수 있다. 나중에 업데이트에 사용될 row들에 대해서 미리 exclusive lock을 걸고 싶은 경우에는 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank" rel="noopener">SELECT … FOR UPDATE</a> 쿼리를 사용해서, 테이블이 아닌 해당 row에만 lock을 걸 수 있도록 하자.</p>
+</li>
+<li><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_file_per_table" target="_blank" rel="noopener">innodb_file_per_table</a> 옵션을 사용하거나, general tablespace를 사용하여 데이터를 저장하고 별도의 파일에 인덱스를 저장하는 방식을 사용해야한다. <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_system_tablespace" target="_blank" rel="noopener">System tablespace</a>에 데이터를 저장하지 않도록 설정하자. </p>
+<p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_file_per_table" target="_blank" rel="noopener">innodb_file_per_table</a> 옵션은 기본적으로 on 되어 있다.</p>
+</li>
+<li><p><em>InnoDB</em>를 통해 관리하려는 데이터의 접근 방식이 데이터 페이지의 <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_compression" target="_blank" rel="noopener">compression</a> 여부에 따라 영향을 받는지 확인해 보자. <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_compression" target="_blank" rel="noopener">Compression</a>이 읽기/쓰기 성능에 큰 영향을 주지 않을것이라고 판단되면 압축기술을 사용하여 공간 낭비를 줄일 수 있다.</p>
+</li>
+<li><p><a href="https://dev.mysql.com/doc/refman/8.0/en/create-table.html" target="_blank" rel="noopener">CREATE TABLE</a> 쿼리에서 사용하는 <code>ENGINE =</code> 옵션이 정상적으로 동작하지 않을 경우, 서버를 실행할 때 <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_sql_mode" target="_blank" rel="noopener"><code>--sql_mode=NO_ENGINE_SUBSTITUTION</code></a> 옵션을 사용해서 <em>InnoDB</em>가 아닌 다른 엔진이 선택되지 않도록 강제 한다.</p>
+</li>
+</ul>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    <style>
+    #footer {
+        align-content: center;
+    position: relative; z-index:100;
+    background-color: #727778; 
+    padding: 20px 30px;
+    line-height: 1.8;
+    color: white !important;
+    width: 100%;
+    font-size: 16px;
+    }
+    #footer a.first {
+        padding-right: 10px;
+        padding-left: 0px;
+    }
+    #footer a {
+        text-decoration: none;
+        color: white;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #footer .copyright {
+        font-size: 13px;
+        margin: 0;
+    }
+    #footer .center {
+        width: fit-content;
+        margin: auto  auto;
+    }
+</style>
+<footer id="footer">
+    <div class="center">
+        <div class="center">
+<a class="first" href="https://vldb.skku.ac.kr">VLDB Lab.</a>
+ | 
+<a href="https://flashsql.skku.ac.kr">FlashSQL</a>
+ | 
+<a href="https://flashsql.github.io">FlashSQL Blog</a>
+        </div>
+<p class="copyright">
+Copyright Sungkyunkwan University VLDB Lab. All rights reserved.
+</p>
+    </div>
+</footer>
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/innodb-doc-kr/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
