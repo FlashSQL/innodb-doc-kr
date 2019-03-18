@@ -22,31 +22,62 @@
 				{
 					"text": "InnoDB 테이블의 장점",
 					"type": "link",
-					"path": "blog/innodb/15.1.1 benefits-of-using-innodb-tables.html"
+					"path": "blog/innodb/1.1 benefits-of-using-innodb-tables.html"
 				},
 				{
 					"text": "Best Practices",
 					"type": "link",
-					"path": "blog/innodb/15.1.2 best-practices.html"
+					"path": "blog/innodb/1.2 best-practices.html"
 				},
 				{
 					"text": "기타 가이드",
 					"type": "link",
-					"path": "blog/innodb/15.1.3 deal-with-innodb.html"
+					"path": "blog/innodb/1.3 deal-with-innodb.html"
 				},
 			]
 		},
 		{
 			"text": "InnoDB and ACID",
 			"type": "link",
-			"path": "blog/innodb/15.2 innodb-ACID.html"
+			"path": "blog/innodb/2 innodb-ACID.html"
 		},
 		{
 			"text": "Multi Versioning",
 			"type": "link",
-			"path": "blog/innodb/15.3 innodb-multi-versioning.html"
+			"path": "blog/innodb/3 innodb-multi-versioning.html"
+		},
+		{
+			"text": "InnoDB Architecture",
+			"type": "link",
+			"path": "blog/innodb/4 InnoDB Architecture.html",
+		},
+		{
+			"text": "In-Memory Structure",
+			"type": "link",
+			"path": "blog/innodb/5 innodb in-memory structures.html",
+			"children" : [
+				{
+					"text": "Buffer Pool",
+					"type": "link",
+					"path" : "blog/innodb/5.1.buffer-pool.html",
+				},
+				{
+					"text": "Change Buffer",
+					"type": "link",
+					"path": "blog/innodb/5.2.change-buffer.html",
+				},
+				{
+					"text": "Adaptive Hash Index",
+					"type": "link",
+					"path": "blog/innodb/5.3.adaptive-hash-index.html",
+				},
+				{
+					"text": "Log Buffer",
+					"type": "link",
+					"path": "blog/innodb/5.4.log-buffer.html",
+				},
+			],
 		}
-
 	]
 	# "main" : [
 	# 	{
